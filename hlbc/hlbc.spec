@@ -21,6 +21,7 @@ A command line tool to disassemble and analyze HashLink bytecode (.hl files).
 %autosetup -n hlbc-master
 
 %build
+sudo haxelib setup /usr/share/haxe/lib
 haxelib install hashlink
 cargo build --release
 
