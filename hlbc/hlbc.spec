@@ -3,7 +3,7 @@
 Name:           hlbc
 Version:        0.8.0
 Release:        1%{?dist}
-Summary:        HashLink bytecode disassembler and decompiler
+Summary:        Command line interface for the HashLink bytecode disassembler
 
 License:        MIT
 URL:            https://github.com/Gui-Yom/hlbc
@@ -14,17 +14,19 @@ BuildRequires:  rust
 BuildRequires:  gcc
 
 %description
-A command line tool to disassemble and decompile HashLink bytecode (.hl files).
+A command line tool to disassemble and analyze HashLink bytecode (.hl files).
 
 %prep
 %autosetup -n hlbc-master
+
+# remove gui to prevent errors
+sed -i '/"crates\/hlbc-gui"/d' Cargo.toml
 
 %build
 cargo build --release -p hlbc-cli
 
 %install
 mkdir -p %{buildroot}%{_bindir}
-
 install -Dpm 0755 target/release/hlbc %{buildroot}%{_bindir}/hlbc
 
 %files
