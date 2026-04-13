@@ -13,6 +13,12 @@ BuildRequires:  cargo
 BuildRequires:  rust
 BuildRequires:  gcc
 BuildRequires:  haxe
+BuildRequires:  libX11-devel
+BuildRequires:  libXcursor-devel
+BuildRequires:  libXrandr-devel
+BuildRequires:  libXi-devel
+BuildRequires:  mesa-libGL-devel
+BuildRequires:  fontconfig-devel
 
 %description
 A command line tool to disassemble and analyze HashLink bytecode (.hl files).
@@ -21,7 +27,8 @@ A command line tool to disassemble and analyze HashLink bytecode (.hl files).
 %autosetup -n hlbc-master
 
 %build
-haxelib setup /usr/share/haxe/lib
+mkdir -p .haxelib
+haxelib setup $(pwd)/.haxelib
 haxelib install hashlink
 cargo build --release
 
