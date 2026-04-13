@@ -12,6 +12,7 @@ Source0:        %{url}/archive/refs/heads/master.tar.gz
 BuildRequires:  cargo
 BuildRequires:  rust
 BuildRequires:  gcc
+BuildRequires:  haxe
 
 %description
 A command line tool to disassemble and analyze HashLink bytecode (.hl files).
@@ -20,6 +21,7 @@ A command line tool to disassemble and analyze HashLink bytecode (.hl files).
 %autosetup -n hlbc-master
 
 %build
+haxelib install hashlink
 cargo build --release
 
 %install
