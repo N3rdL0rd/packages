@@ -19,19 +19,19 @@ A command line tool to disassemble and analyze HashLink bytecode (.hl files).
 %prep
 %autosetup -n hlbc-master
 
-# remove gui to prevent errors
-sed -i '/"crates\/hlbc-gui"/d' Cargo.toml
-
 %build
-cargo build --release -p hlbc-cli
+cargo build --release
 
 %install
 mkdir -p %{buildroot}%{_bindir}
 install -Dpm 0755 target/release/hlbc %{buildroot}%{_bindir}/hlbc
+install -Dpm 0755 target/release/hlbc-gui %{buildroot}%{_bindir}/hlbc-gui
+
 
 %files
 %license LICENSE
 %{_bindir}/hlbc
+%{_bindir}/hlbc-gui
 
 %changelog
 %autochangelog
