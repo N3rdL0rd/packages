@@ -6,7 +6,7 @@ Release:        1%{?dist}
 Summary:        Command line interface for the HashLink bytecode disassembler
 
 License:        MIT
-URL:            https://github.com/Gui-Yom/hlbc
+URL:            https://github.com/N3rdL0rd/hlbc
 Source0:        %{url}/archive/refs/heads/master.tar.gz
 
 BuildRequires:  cargo
