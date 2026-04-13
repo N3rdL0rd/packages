@@ -29,19 +29,37 @@ pnpm i
 pnpm package:dir
 
 %install
-mkdir -p %{buildroot}%{_libdir}
-cp -pr dist/linux*-unpacked %{buildroot}%{_libdir}/vesktop
-install -Dpm755 %{SOURCE1} %{buildroot}%{_bindir}/vesktop
-install -Dpm644 %{SOURCE2} %{buildroot}%{_datarootdir}/applications/vesktop.desktop
-install -Dpm644 static/icon.png %{buildroot}%{_datarootdir}/pixmaps/vesktop.png
+# 1. Create directories
+mkdir -p %{buildroot}/opt/Vesktop
+mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_datadir}/applications
+mkdir -p %{buildroot}%{_datadir}/icons/hicolor/scalable/apps
+
+cp -pr dist/linux-unpacked/* %{buildroot}/opt/Vesktop/
+ln -s /opt/Vesktop/vesktop %{buildroot}%{_bindir}/vesktop
+install -Dpm644 build/icon.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/vesktop.svg
+
+cat <<EOF > %{buildroot}%{_datadir}/applications/vesktop.desktop
+[Desktop Entry]
+Name=Vesktop
+GenericName=Internet Messenger
+Comment=Vesktop Discord Client
+Exec=vesktop %U
+Icon=vesktop
+Type=Application
+Terminal=false
+Categories=Network;InstantMessaging;Chat;
+MimeType=x-scheme-handler/discord;
+StartupWMClass=vesktop
+EOF
 
 %files
-%doc README.md
 %license LICENSE
+%doc README.md
+/opt/Vesktop/
 %{_bindir}/vesktop
-%{_libdir}/vesktop
-%{_datarootdir}/applications/vesktop.desktop
-%{_datarootdir}/pixmaps/vesktop.png
+%{_datadir}/applications/vesktop.desktop
+%{_datadir}/icons/hicolor/scalable/apps/vesktop.svg
 
 %changelog
 %autochangelog
