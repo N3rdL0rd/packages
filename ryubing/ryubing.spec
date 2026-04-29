@@ -29,6 +29,15 @@ and improvements after the original Ryujinx project ceased.
 %prep
 %autosetup -n ryubing
 
+cat > global.json << 'EOF'
+{
+  "sdk": {
+    "version": "10.0.100",
+    "rollForward": "latestFeature"
+  }
+}
+EOF
+
 sed -r -i 's/\%\%RYUJINX_BUILD_VERSION\%\%/%{version}/g' \
     src/Ryujinx.Common/ReleaseInformation.cs
 sed -r -i 's/\%\%RYUJINX_BUILD_GIT_HASH\%\%/%{version}-%{release}/g' \
