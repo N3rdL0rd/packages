@@ -10,7 +10,7 @@ License:        MIT
 URL:            https://git.ryujinx.app/projects/Ryubing
 Source0:        %{url}/archive/%{version}.tar.gz
 
-BuildRequires:  dotnet-sdk-10.0
+BuildRequires:  dotnet-sdk-9.0
 BuildRequires:  desktop-file-utils
 
 Requires:       hicolor-icon-theme
@@ -32,7 +32,7 @@ and improvements after the original Ryujinx project ceased.
 cat > global.json << 'EOF'
 {
   "sdk": {
-    "version": "10.0.100",
+    "version": "9.0.100",
     "rollForward": "latestFeature"
   }
 }
