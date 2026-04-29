@@ -38,6 +38,25 @@ cat > global.json << 'EOF'
 }
 EOF
 
+cat > nuget.config << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+        <add key="LibHacAlpha" value="https://git.ryujinx.app/api/packages/projects/nuget/index.json" />
+    </packageSources>
+    <packageSourceMapping>
+        <packageSource key="nuget.org">
+            <package pattern="*" />
+        </packageSource>
+        <packageSource key="LibHacAlpha">
+            <package pattern="Ryujinx.LibHac" />
+        </packageSource>
+    </packageSourceMapping>
+</configuration>
+EOF
+
 sed -r -i 's/\%\%RYUJINX_BUILD_VERSION\%\%/%{version}/g' \
     src/Ryujinx.Common/ReleaseInformation.cs
 sed -r -i 's/\%\%RYUJINX_BUILD_GIT_HASH\%\%/%{version}-%{release}/g' \
