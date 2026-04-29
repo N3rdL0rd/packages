@@ -27,7 +27,7 @@ emulator built with .NET and Avalonia. It provides continued development
 and improvements after the original Ryujinx project ceased.
 
 %prep
-%autosetup -n Ryubing
+%autosetup -n ryubing
 
 sed -r -i 's/\%\%RYUJINX_BUILD_VERSION\%\%/%{version}/g' \
     src/Ryujinx.Common/ReleaseInformation.cs
