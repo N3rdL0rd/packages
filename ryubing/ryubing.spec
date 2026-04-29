@@ -9,6 +9,7 @@ Summary:        A Nintendo Switch emulator (Ryujinx community fork)
 License:        MIT
 URL:            https://git.ryujinx.app/projects/Ryubing
 Source0:        %{url}/archive/%{version}.tar.gz
+Patch0:         hidpi-wayland.patch
 
 BuildRequires:  dotnet-sdk-9.0
 BuildRequires:  desktop-file-utils
@@ -27,7 +28,7 @@ emulator built with .NET and Avalonia. It provides continued development
 and improvements after the original Ryujinx project ceased.
 
 %prep
-%autosetup -n ryubing
+%autosetup -p1 -n ryubing
 
 cat > global.json << 'EOF'
 {

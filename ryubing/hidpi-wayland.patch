@@ -1,0 +1,31 @@
+diff --git a/src/Ryujinx.Common/SystemInterop/ForceDpiAware.cs b/src/Ryujinx.Common/SystemInterop/ForceDpiAware.cs
+index a89dcd1ad..af8e80ca2 100644
+--- a/src/Ryujinx.Common/SystemInterop/ForceDpiAware.cs
++++ b/src/Ryujinx.Common/SystemInterop/ForceDpiAware.cs
+@@ -29,7 +29,7 @@ namespace Ryujinx.Common.SystemInterop
+         private static partial int XCloseDisplay(nint display);
+ 
+         private const double StandardDpiScale = 96.0;
+-        private const double MaxScaleFactor = 1.25;
++        private const double MaxScaleFactor = 4.0;
+ 
+         /// <summary>
+         /// Marks the application as DPI-Aware when running on the Windows operating system.
+@@ -70,8 +70,15 @@ namespace Ryujinx.Common.SystemInterop
+                     }
+                     else if (xdgSessionType == "wayland")
+                     {
+-                        // TODO
+-                        Logger.Warning?.Print(LogClass.Application, "Couldn't determine monitor DPI: Wayland not yet supported");
++                        string gdkScale = Environment.GetEnvironmentVariable("GDK_SCALE");
++                        if (gdkScale != null && int.TryParse(gdkScale, out int scale) && scale > 0)
++                        {
++                            userDpiScale = StandardDpiScale * scale;
++                        }
++                        else
++                        {
++                            userDpiScale = StandardDpiScale;
++                        }
+                     }
+                     else
+                     {
