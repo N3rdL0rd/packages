@@ -3,29 +3,35 @@
 
 # ---------------------------------------------------------------
 # ToT tracking: bump these two globals to update to a new build.
-# For canary: grab the tag from https://git.ryujinx.app/ryubing/ryujinx/releases
-# For stable: use the semver tag (e.g. 1.3.3)
+#
+# For canary: upstream tag format is "Canary-<version>", archive at:
+#   https://git.ryujinx.app/projects/Ryubing/archive/Canary-<version>.tar.gz
+# For stable: tag format is just "<version>" (e.g. 1.3.3), archive at:
+#   https://git.ryujinx.app/projects/Ryubing/archive/<version>.tar.gz
 # ---------------------------------------------------------------
 %global upstream_version 1.3.279
 %global channel          canary
+
+# Tag as it appears in the upstream Forgejo repo.
+%global upstream_tag Canary-%{upstream_version}
 
 # Shorthand used in the Release: field so stable vs canary builds
 # don't collide in the same repo.
 %global relchannel %{channel}
 
 Name:           ryubing
-# Canary versions are higher than stable; use the upstream tag verbatim.
+# Canary versions are higher than stable; use the upstream version verbatim.
 Version:        %{upstream_version}
 Release:        1.%{relchannel}%{?dist}
 Summary:        A Nintendo Switch emulator (Ryujinx community fork)
 
 License:        MIT
-URL:            https://git.ryujinx.app/ryubing/ryujinx
-# Forgejo/Gitea archive URL: extracts to ryujinx/
-Source0:        %{url}/archive/%{upstream_version}.tar.gz#/ryubing-%{upstream_version}.tar.gz
+URL:            https://git.ryujinx.app/projects/Ryubing
+# Archive URL confirmed working; Gitea extracts to Ryubing-<tag>/
+Source0:        %{url}/archive/%{upstream_tag}.tar.gz
 Patch0:         hidpi-wayland.patch
 
-BuildRequires:  dotnet-sdk-10.0
+BuildRequires:  dotnet-sdk-9.0
 BuildRequires:  desktop-file-utils
 
 Requires:       hicolor-icon-theme
@@ -43,8 +49,19 @@ and improvements after the original Ryujinx project ceased active
 maintenance. This package tracks the %{channel} channel.
 
 %prep
-# Forgejo archives extract to just the repo name without a version suffix.
-%autosetup -p1 -n ryujinx
+# Gitea archives extract to <RepoName>-<tag>/ — i.e. Ryubing-Canary-<ver>/
+# For a stable tag like "1.3.3" this would be Ryubing-1.3.3/
+%autosetup -p1 -n Ryubing-%{upstream_tag}
+
+# Pin the SDK version; rollForward lets newer patch releases satisfy it.
+cat > global.json << 'EOF'
+{
+  "sdk": {
+    "version": "9.0.100",
+    "rollForward": "latestFeature"
+  }
+}
+EOF
 
 # Provide NuGet sources: nuget.org for everything except the Ryubing-hosted
 # LibHac alpha, which lives on the project's own package registry.
@@ -161,10 +178,11 @@ update-mime-database %{_datadir}/mime &>/dev/null || :
 %{_datadir}/mime/packages/ryubing.xml
 
 %changelog
-* Wed Apr 29 2026 N3rdL0rd <n3rdl0rd@proton.me> - 1.3.274-1.canary
-- Update to canary 1.3.274 (ToT as of 2026-04-24).
-- Switch Source0 to Forgejo archive URL for easy ToT tracking.
-- Add channel macro; Release field now encodes stable vs canary.
+* Wed Apr 29 2026 N3rdL0rd <n3rdl0rd@proton.me> - 1.3.279-1.canary
+- Update to canary 1.3.279 (ToT as of 2026-04-28).
+- Fix Source0: correct URL is projects/Ryubing/archive/Canary-<ver>.tar.gz.
+- Add upstream_tag macro to handle Canary- prefix; autosetup -n updated to match.
+- Stable builds use bare version tag with no prefix.
 
 * Tue Apr 28 2026 N3rdL0rd <n3rdl0rd@proton.me> - 1.3.3-1
 - Initial package.
