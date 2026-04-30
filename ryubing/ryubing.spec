@@ -49,9 +49,18 @@ and improvements after the original Ryujinx project ceased active
 maintenance. This package tracks the %{channel} channel.
 
 %prep
-# Gitea archives extract to <RepoName>-<tag>/ — i.e. Ryubing-Canary-<ver>/
-# For a stable tag like "1.3.3" this would be Ryubing-1.3.3/
-%autosetup -p1 -n Ryubing-%{upstream_tag}
+# The Gitea archive's top-level directory name varies (it can be
+# "Ryubing-Canary-X.Y.Z", "ryubing", or something else entirely depending
+# on the server version).  Rather than guessing, extract into a known
+# directory with --strip-components=1 and apply patches by hand.
+#
+# -T  : skip the default automatic extraction
+# -c  : mkdir + cd into %{name}-%{version} before we do anything
+%setup -q -T -c -n %{name}-%{version}
+tar -xf %{SOURCE0} --strip-components=1
+
+# Apply patches in the same order %autosetup would have.
+%patch -P 0 -p1
 
 # Pin the SDK version; rollForward lets newer patch releases satisfy it.
 cat > global.json << 'EOF'
