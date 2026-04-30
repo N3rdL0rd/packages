@@ -29,9 +29,8 @@ License:        MIT
 URL:            https://git.ryujinx.app/projects/Ryubing
 # Archive URL confirmed working; Gitea extracts to Ryubing-<tag>/
 Source0:        %{url}/archive/%{upstream_tag}.tar.gz
-Patch0:         hidpi-wayland.patch
 
-BuildRequires:  dotnet-sdk-9.0
+BuildRequires:  dotnet-sdk-10.0
 BuildRequires:  desktop-file-utils
 
 Requires:       hicolor-icon-theme
@@ -49,20 +48,7 @@ and improvements after the original Ryujinx project ceased active
 maintenance. This package tracks the %{channel} channel.
 
 %prep
-%autosetup -n %{name}-%{version}
-
-# Apply patches in the same order %autosetup would have.
-%patch -P 0 -p1
-
-# Pin the SDK version; rollForward lets newer patch releases satisfy it.
-cat > global.json << 'EOF'
-{
-  "sdk": {
-    "version": "9.0.100",
-    "rollForward": "latestFeature"
-  }
-}
-EOF
+%autosetup -n ryubing
 
 # Provide NuGet sources: nuget.org for everything except the Ryubing-hosted
 # LibHac alpha, which lives on the project's own package registry.
