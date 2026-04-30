@@ -1,17 +1,31 @@
 %global debug_package %{nil}
 %global __strip /bin/true
 
+# ---------------------------------------------------------------
+# ToT tracking: bump these two globals to update to a new build.
+# For canary: grab the tag from https://git.ryujinx.app/ryubing/ryujinx/releases
+# For stable: use the semver tag (e.g. 1.3.3)
+# ---------------------------------------------------------------
+%global upstream_version 1.3.279
+%global channel          canary
+
+# Shorthand used in the Release: field so stable vs canary builds
+# don't collide in the same repo.
+%global relchannel %{channel}
+
 Name:           ryubing
-Version:        1.3.3
-Release:        1%{?dist}
+# Canary versions are higher than stable; use the upstream tag verbatim.
+Version:        %{upstream_version}
+Release:        1.%{relchannel}%{?dist}
 Summary:        A Nintendo Switch emulator (Ryujinx community fork)
 
 License:        MIT
-URL:            https://git.ryujinx.app/projects/Ryubing
-Source0:        %{url}/archive/%{version}.tar.gz
+URL:            https://git.ryujinx.app/ryubing/ryujinx
+# Forgejo/Gitea archive URL: extracts to ryujinx/
+Source0:        %{url}/archive/%{upstream_version}.tar.gz#/ryubing-%{upstream_version}.tar.gz
 Patch0:         hidpi-wayland.patch
 
-BuildRequires:  dotnet-sdk-9.0
+BuildRequires:  dotnet-sdk-10.0
 BuildRequires:  desktop-file-utils
 
 Requires:       hicolor-icon-theme
@@ -25,46 +39,42 @@ ExclusiveArch:  x86_64 aarch64
 %description
 Ryubing is a community-maintained fork of Ryujinx, a Nintendo Switch
 emulator built with .NET and Avalonia. It provides continued development
-and improvements after the original Ryujinx project ceased.
+and improvements after the original Ryujinx project ceased active
+maintenance. This package tracks the %{channel} channel.
 
 %prep
-%autosetup -p1 -n ryubing
+# Forgejo archives extract to just the repo name without a version suffix.
+%autosetup -p1 -n ryujinx
 
-cat > global.json << 'EOF'
-{
-  "sdk": {
-    "version": "9.0.100",
-    "rollForward": "latestFeature"
-  }
-}
-EOF
-
+# Provide NuGet sources: nuget.org for everything except the Ryubing-hosted
+# LibHac alpha, which lives on the project's own package registry.
 cat > nuget.config << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
         <clear />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-        <add key="LibHacAlpha" value="https://git.ryujinx.app/api/packages/projects/nuget/index.json" />
+        <add key="RyubingRegistry" value="https://git.ryujinx.app/api/packages/projects/nuget/index.json" />
     </packageSources>
     <packageSourceMapping>
         <packageSource key="nuget.org">
             <package pattern="*" />
         </packageSource>
-        <packageSource key="LibHacAlpha">
+        <packageSource key="RyubingRegistry">
             <package pattern="Ryujinx.LibHac" />
         </packageSource>
     </packageSourceMapping>
 </configuration>
 EOF
 
-sed -r -i 's/\%\%RYUJINX_BUILD_VERSION\%\%/%{version}/g' \
+# Stamp version/channel strings into the build metadata.
+sed -r -i 's/%%RYUJINX_BUILD_VERSION%%/%{upstream_version}/g' \
     src/Ryujinx.Common/ReleaseInformation.cs
-sed -r -i 's/\%\%RYUJINX_BUILD_GIT_HASH\%\%/%{version}-%{release}/g' \
+sed -r -i 's/%%RYUJINX_BUILD_GIT_HASH%%/%{upstream_version}-%{release}/g' \
     src/Ryujinx.Common/ReleaseInformation.cs
-sed -r -i 's/\%\%RYUJINX_TARGET_RELEASE_CHANNEL_NAME\%\%/release/g' \
+sed -r -i 's/%%RYUJINX_TARGET_RELEASE_CHANNEL_NAME%%/%{channel}/g' \
     src/Ryujinx.Common/ReleaseInformation.cs
-sed -r -i 's/\%\%RYUJINX_CONFIG_FILE_NAME\%\%/Config\.json/g' \
+sed -r -i 's/%%RYUJINX_CONFIG_FILE_NAME%%/Config\.json/g' \
     src/Ryujinx.Common/ReleaseInformation.cs
 
 %build
@@ -82,7 +92,7 @@ export NUGET_XMLDOC_MODE=skip
 dotnet publish -c Release \
     -r %{dotnet_rid} \
     --self-contained \
-    -p:Version=%{version} \
+    -p:Version=%{upstream_version} \
     -p:DebugType=embedded \
     -p:ExtraDefineConstants=DISABLE_UPDATER \
     -o publish \
@@ -91,6 +101,7 @@ dotnet publish -c Release \
 %install
 install -d -m 755 %{buildroot}/opt/ryubing
 cp -pr publish/* %{buildroot}/opt/ryubing/
+# Remove macOS-only JIT support dylib that has no business in an RPM.
 rm -f %{buildroot}/opt/ryubing/libarmeilleure-jitsupport.dylib
 chmod 0755 %{buildroot}/opt/ryubing/Ryujinx %{buildroot}/opt/ryubing/Ryujinx.sh
 
@@ -150,5 +161,10 @@ update-mime-database %{_datadir}/mime &>/dev/null || :
 %{_datadir}/mime/packages/ryubing.xml
 
 %changelog
+* Wed Apr 29 2026 N3rdL0rd <n3rdl0rd@proton.me> - 1.3.274-1.canary
+- Update to canary 1.3.274 (ToT as of 2026-04-24).
+- Switch Source0 to Forgejo archive URL for easy ToT tracking.
+- Add channel macro; Release field now encodes stable vs canary.
+
 * Tue Apr 28 2026 N3rdL0rd <n3rdl0rd@proton.me> - 1.3.3-1
 - Initial package.
